@@ -1,0 +1,23 @@
+# Changes here will be overwritten by Copier
+_commit: v0.1.9
+_src_path: gh:edgarrmondragon/singer-tap-copier-template
+author_email: edgarrmondragon@hey.com
+author_fullname: Edgar Ramírez-Mondragón
+author_username: edgarrmondragon
+dependabot_update_time: '10:00'
+dependabot_update_timezone: Etc/UTC
+python_main_version: '3.12'
+repository_name: tap-nasa
+repository_namespace: edgarrmondragon
+repository_provider: github.com
+repository_visibility: public
+tap_auth_method: API Key
+tap_id: tap-nasa
+tap_package_command_line_name: tap-nasa
+tap_package_distribution_name: tap-nasa
+tap_package_import_name: tap_nasa
+tap_source_description: NASA Open APIs
+tap_source_id: NASA
+tap_source_name: NASA
+tap_stream_type: REST
+vscode_files: true

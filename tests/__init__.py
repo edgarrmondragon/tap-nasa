@@ -1,0 +1,1 @@
+"""Singer Tap Tests."""

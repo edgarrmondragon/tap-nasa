@@ -1,0 +1,74 @@
+name: Test tap-nasa
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - tap_nasa/**
+      - tests/**
+      - pyproject.toml
+      - .github/workflows/test.yml
+      - .github/workflows/constraints.txt
+  pull_request:
+    types: [opened, synchronize, reopened]
+    paths:
+      - tap_nasa/**
+      - tests/**
+      - pyproject.toml
+      - .github/workflows/test.yml
+      - .github/workflows/constraints.txt
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    env:
+      FORCE_COLOR: "1"
+      PIP_CONSTRAINT: ${{ github.workspace }}/.github/workflows/constraints.txt
+    strategy:
+      fail-fast: false
+      matrix:
+        script: ["test:integration"]
+        python-version:
+        - "3.8"
+        - "3.9"
+        - "3.10"
+        - "3.11"
+        - "3.12"
+        - "3.13"
+        include:
+        - { script: "test:dependencies", python-version: "3.12" }
+        - { script: "typing:check",      python-version: "3.12" }
+
+    steps:
+    - uses: actions/checkout@v4
+    - uses: actions/setup-python@v5
+      with:
+        python-version: ${{ matrix.python-version }}
+        cache: pip
+
+    - name: Upgrade pip
+      run: |
+        pip install pip
+        pip --version
+
+    - name: Upgrade pip in virtual environments
+      shell: python
+      run: |
+        import os
+        import pip
+
+        with open(os.environ["GITHUB_ENV"], mode="a") as io:
+            print(f"VIRTUALENV_PIP={pip.__version__}", file=io)
+
+    - name: Install Hatch
+      run: |
+        pipx install hatch
+        hatch --version
+
+    - name: Run tests
+      env:
+        HATCH_ENV: ${{ matrix.python-version }}
+        HATCH_VERBOSE: "1"
+        TAP_NASA_API_KEY: ${{ secrets.TAP_NASA_API_KEY }}
+      run: |
+        hatch run ${{ matrix.script }}

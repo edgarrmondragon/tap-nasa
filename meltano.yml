@@ -1,0 +1,37 @@
+version: 1
+send_anonymous_usage_stats: false
+project_id: tap-nasa
+default_environment: dev
+environments:
+- name: dev
+plugins:
+  extractors:
+  - name: tap-nasa
+    label: NASA
+    namespace: nasa
+    description: NASA Open APIs
+    repository: https://github.com/edgarrmondragon/tap-nasa
+    docs: https://github.com/edgarrmondragon/tap-nasa#readme
+    pip_url: -e .
+    capabilities:
+    - state
+    - catalog
+    - discover
+    settings:
+    - name: api_key
+      kind: password
+      label: API Key
+      description: API Key for NASA
+      sensitive: true
+    - name: start_date
+      kind: date_iso8601
+      label: Start Date
+      description: Earliest datetime to get data from
+    settings_group_validation:
+    - [api_key, start_date]
+    config:
+      start_date: "2024-01-01"
+  loaders:
+  - name: target-jsonl
+    variant: andyh1203
+    pip_url: target-jsonl

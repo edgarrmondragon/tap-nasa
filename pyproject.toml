@@ -1,0 +1,164 @@
+[build-system]
+build-backend = "hatchling.build"
+requires = [
+  "hatch-vcs",
+  "hatchling",
+]
+
+[project]
+name = "tap-nasa"
+description = "`tap-nasa` is a Singer tap for NASA, built with the Meltano SDK for Singer Taps."
+readme = "README.md"
+keywords = [
+  "ELT",
+  "NASA",
+  "singer.io",
+]
+license.file = "LICENSE"
+maintainers = [
+  { name = "Edgar Ramírez-Mondragón", email = "edgarrmondragon@hey.com" },
+]
+authors = [
+  { name = "Edgar Ramírez-Mondragón", email = "edgarrmondragon@hey.com" },
+]
+requires-python = ">=3.8"
+classifiers = [
+  "Programming Language :: Python :: 3 :: Only",
+  "Programming Language :: Python :: 3.8",
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+]
+dynamic = [
+  "version",
+]
+dependencies = [
+  "singer-sdk~=0.38.0",
+]
+optional-dependencies.dev = [
+  "tap-nasa[testing,typing]",
+]
+optional-dependencies.testing = [
+  "deptry>=0.12",
+  "pytest>=8",
+  "singer-sdk[testing]",
+]
+optional-dependencies.typing = [
+  "mypy",
+]
+urls.Documentation = "https://github.com/edgarrmondragon/tap-nasa#readme"
+urls.Homepage = "https://github.com/edgarrmondragon/tap-nasa"
+urls.Repository = "https://github.com/edgarrmondragon/tap-nasa"
+scripts."tap-nasa" = "tap_nasa.tap:TapNASA.cli"
+
+[tool.hatch.version]
+source = "vcs"
+
+[tool.hatch.envs.default]
+installer = "uv"
+
+[tool.hatch.envs.default.env-vars]
+UV_PRERELEASE = "allow"
+
+[tool.hatch.envs.default.overrides]
+env.GITHUB_ACTIONS.dev-mode = { value = false, if = [
+  "true",
+] }
+
+[tool.hatch.envs.sync.scripts]
+console = "tap-nasa {args}"
+jsonl = "tap-nasa {args} > tap-nasa.jsonl"
+
+[tool.hatch.envs.test]
+features = [
+  "testing",
+]
+[tool.hatch.envs.test.scripts]
+integration = "pytest {args:tests}"
+dependencies = "deptry ."
+
+[tool.hatch.envs.all]
+template = "test"
+[[tool.hatch.envs.all.matrix]]
+python = [
+  "3.8",
+  "3.9",
+  "3.10",
+  "3.11",
+  "3.12",
+  "3.13",
+]
+
+[tool.hatch.envs.typing]
+features = [
+  "testing",
+  "typing",
+]
+[tool.hatch.envs.typing.scripts]
+check = "mypy --strict {args:tap_nasa tests}"
+
+[tool.ruff]
+line-length = 88
+lint.select = [
+  "ALL",
+]
+lint.ignore = [
+  "ANN101", # missing-type-self
+  "COM812", # missing-trailing-comma
+  "DJ",     # flake8-django
+  "FIX002", # line-contains-todo
+  "ISC001", # single-line-implicit-string-concatenation
+  "PD",     # pandas-vet
+]
+lint.per-file-ignores."tests/*" = [
+  "ANN201", # missing-return-type-public-function
+  "S101",   # assert
+  "SLF001", # private-member-access
+]
+lint.unfixable = [
+  "ERA001", # commented-out-code
+]
+lint.flake8-annotations.allow-star-arg-any = true
+lint.isort.known-first-party = [
+  "tap_nasa",
+]
+lint.isort.required-imports = [
+  "from __future__ import annotations",
+]
+lint.pydocstyle.convention = "google"
+
+[tool.deptry.package_module_name_map]
+mypy = "mypy"
+pytest = "pytest"
+tap-nasa = "tap_nasa"
+types-requests = "requests"
+
+[tool.deptry.per_rule_ignores]
+DEP002 = [
+  "deptry",
+  "mypy",
+  "pytest",
+]
+
+[tool.pyproject-fmt]
+max_supported_python = "3.13"
+
+[tool.pytest.ini_options]
+addopts = "-vvv"
+
+[tool.mypy]
+python_version = "3.12"
+warn_redundant_casts = true
+warn_return_any = true
+warn_no_return = true
+warn_unreachable = true
+warn_unused_configs = true
+warn_unused_ignores = true
+
+[[tool.mypy.overrides]]
+ignore_missing_imports = true
+module = [
+  "backoff.*",
+]
