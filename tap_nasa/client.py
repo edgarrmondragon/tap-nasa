@@ -3,8 +3,8 @@
 from __future__ import annotations
 
 import dataclasses
-import datetime
 import typing as t
+from datetime import date, datetime, timedelta, timezone
 
 from singer_sdk import RESTStream
 from singer_sdk import typing as th
@@ -18,8 +18,34 @@ DATE_FORMAT = "%Y-%m-%d"
 class DateRange:
     """Date range class."""
 
-    start: datetime.date
-    end: datetime.date | None = None
+    start: date
+    interval: timedelta
+    max_date: date
+
+    @property
+    def end_date(self) -> date:
+        """The end date of the range."""
+        return min(self.start + self.interval, self.max_date)
+
+    def increase(self) -> DateRange:
+        """Increase the date range.
+
+        Returns:
+            The increased date range.
+        """
+        return DateRange(
+            self.start + self.interval + timedelta(days=1),
+            self.interval,
+            self.max_date,
+        )
+
+    def valid(self) -> bool:
+        """Check if the date range is not past the max date.
+
+        Returns:
+            True if the date range is valid.
+        """
+        return self.start <= self.max_date
 
 
 class DateRangePaginator(BaseAPIPaginator[DateRange]):
@@ -32,24 +58,8 @@ class DateRangePaginator(BaseAPIPaginator[DateRange]):
             start_value: The start value.
         """
         super().__init__(start_value)
-        self.interval = datetime.timedelta(days=100)
-        self.max_date = datetime.datetime.now(datetime.timezone.utc).date()
 
-        if self.current_value.end is None:
-            self.current_value.end = self.increase(self.current_value.start)
-
-    def increase(self, value: datetime.date) -> datetime.date:
-        """Increase the value.
-
-        Args:
-            value: The value.
-
-        Returns:
-            The increased value.
-        """
-        return min(value + self.interval, self.max_date)
-
-    def get_next(self, response) -> DateRange | None:  # noqa: ANN001, ARG002
+    def get_next(self, response) -> DateRange | None:  # type: ignore[no-untyped-def]  # noqa: ANN001, ARG002
         """Get the next value.
 
         Args:
@@ -58,13 +68,12 @@ class DateRangePaginator(BaseAPIPaginator[DateRange]):
         Returns:
             The next value.
         """
-        start = self.current_value.end + datetime.timedelta(days=1)
-        end = self.increase(start)
+        new = self.current_value.increase()
 
-        if start > self.max_date:
-            return None
+        if new.valid():
+            return new
 
-        return DateRange(start=start, end=end)
+        return None
 
 
 class NASAStream(RESTStream[DateRange]):
@@ -145,7 +154,7 @@ class NASAStream(RESTStream[DateRange]):
         """
         return {"User-Agent": f"{self.tap_name}/{self._tap.plugin_version}"}
 
-    def get_new_paginator(self) -> BaseAPIPaginator:
+    def get_new_paginator(self) -> DateRangePaginator:
         """Get a new paginator."""
         start_dt = self.get_starting_timestamp(context=None)
 
@@ -155,13 +164,19 @@ class NASAStream(RESTStream[DateRange]):
 
         start_date = start_dt.date()
 
-        return DateRangePaginator(start_value=DateRange(start=start_date))
+        return DateRangePaginator(
+            start_value=DateRange(
+                start=start_date,
+                interval=timedelta(days=100),
+                max_date=datetime.now(timezone.utc).date(),
+            )
+        )
 
     def get_url_params(
         self,
         context: dict[str, t.Any] | None,
         next_page_token: DateRange | None,
-    ) -> dict[str, t.Any]:
+    ) -> dict[str, t.Any] | str:
         """Get URL query parameters.
 
         Args:
@@ -174,7 +189,7 @@ class NASAStream(RESTStream[DateRange]):
         if next_page_token:
             return {
                 "start_date": next_page_token.start.strftime(DATE_FORMAT),
-                "end_date": next_page_token.end.strftime(DATE_FORMAT),
+                "end_date": next_page_token.end_date.strftime(DATE_FORMAT),
             }
 
         return super().get_url_params(context, next_page_token)

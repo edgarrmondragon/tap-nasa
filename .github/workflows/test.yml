@@ -68,7 +68,7 @@ jobs:
 
     - name: Run tests
       env:
-        HATCH_ENV: ${{ matrix.python-version }}
+        HATCH_PYTHON: ${{ matrix.python-version }}
         HATCH_VERBOSE: "1"
         TAP_NASA_API_KEY: ${{ secrets.TAP_NASA_API_KEY }}
       run: |
