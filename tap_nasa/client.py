@@ -174,7 +174,7 @@ class NASAStream(RESTStream[DateRange]):
 
     def get_url_params(
         self,
-        context: types.Context[str, t.Any] | None,
+        context: types.Context | None,
         next_page_token: DateRange | None,
     ) -> dict[str, t.Any] | str:
         """Get URL query parameters.
