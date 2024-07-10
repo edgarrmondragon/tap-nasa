@@ -11,6 +11,9 @@ from singer_sdk import typing as th
 from singer_sdk.authenticators import APIKeyAuthenticator
 from singer_sdk.pagination import BaseAPIPaginator
 
+if t.TYPE_CHECKING:
+    from singer_sdk.helpers import types
+
 DATE_FORMAT = "%Y-%m-%d"
 
 
@@ -39,7 +42,7 @@ class DateRange:
             self.max_date,
         )
 
-    def valid(self) -> bool:
+    def is_valid(self) -> bool:
         """Check if the date range is not past the max date.
 
         Returns:
@@ -70,10 +73,7 @@ class DateRangePaginator(BaseAPIPaginator[DateRange]):
         """
         new = self.current_value.increase()
 
-        if new.valid():
-            return new
-
-        return None
+        return new if new.is_valid() else None
 
 
 class NASAStream(RESTStream[DateRange]):
@@ -156,7 +156,7 @@ class NASAStream(RESTStream[DateRange]):
 
     def get_new_paginator(self) -> DateRangePaginator:
         """Get a new paginator."""
-        start_dt = self.get_starting_timestamp(context=None)
+        start_dt = self.get_starting_timestamp(context=self.context)
 
         if start_dt is None:
             msg = "A start date is required"
@@ -174,7 +174,7 @@ class NASAStream(RESTStream[DateRange]):
 
     def get_url_params(
         self,
-        context: dict[str, t.Any] | None,
+        context: types.Context[str, t.Any] | None,
         next_page_token: DateRange | None,
     ) -> dict[str, t.Any] | str:
         """Get URL query parameters.

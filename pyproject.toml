@@ -35,7 +35,7 @@ dynamic = [
   "version",
 ]
 dependencies = [
-  "singer-sdk~=0.38.0",
+  "singer-sdk~=0.39.0a1",
 ]
 optional-dependencies.dev = [
   "tap-nasa[testing,typing]",
@@ -43,7 +43,7 @@ optional-dependencies.dev = [
 optional-dependencies.testing = [
   "deptry>=0.12",
   "pytest>=8",
-  "singer-sdk[testing]",
+  "singer-sdk[testing]~=0.39.0a1",
 ]
 optional-dependencies.typing = [
   "mypy",
