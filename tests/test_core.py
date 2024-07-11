@@ -7,6 +7,7 @@ import typing as t
 
 from singer_sdk.testing import SuiteConfig, get_tap_test_class
 
+from tap_nasa.client import DateRange, DateRangePaginator
 from tap_nasa.tap import TapNASA
 
 
@@ -26,3 +27,33 @@ TestTapNASA = get_tap_test_class(
         max_records_limit=10,
     ),
 )
+
+
+def test_date_range_pagination() -> None:
+    """Test date range pagination."""
+    start_date = datetime.date(2021, 1, 1)
+    interval = datetime.timedelta(days=10)
+    max_date = datetime.date(2021, 1, 25)
+
+    response = object()
+
+    paginator = DateRangePaginator(
+        start_value=DateRange(
+            start=start_date,
+            interval=interval,
+            max_date=max_date,
+        )
+    )
+    assert paginator.current_value.start == datetime.date(2021, 1, 1)
+    assert paginator.current_value.end_date == datetime.date(2021, 1, 11)
+
+    paginator.advance(response)
+    assert paginator.current_value.start == datetime.date(2021, 1, 12)
+    assert paginator.current_value.end_date == datetime.date(2021, 1, 22)
+
+    paginator.advance(response)
+    assert paginator.current_value.start == datetime.date(2021, 1, 23)
+    assert paginator.current_value.end_date == datetime.date(2021, 1, 25)
+
+    paginator.advance(response)
+    assert paginator.finished
