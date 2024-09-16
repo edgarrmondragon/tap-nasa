@@ -35,7 +35,7 @@ dynamic = [
   "version",
 ]
 dependencies = [
-  "singer-sdk~=0.40.0a1",
+  "singer-sdk~=0.41.0a3",
 ]
 optional-dependencies.dev = [
   "tap-nasa[testing,typing]",
