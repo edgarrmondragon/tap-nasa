@@ -43,7 +43,7 @@ optional-dependencies.dev = [
 optional-dependencies.testing = [
   "deptry>=0.12",
   "pytest>=8",
-  "singer-sdk[testing]~=0.40.0a1",
+  "singer-sdk[testing]",
 ]
 optional-dependencies.typing = [
   "mypy",
