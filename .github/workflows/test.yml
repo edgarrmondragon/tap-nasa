@@ -40,12 +40,13 @@ jobs:
         - "3.12"
         - "3.13"
         include:
-        - { script: "test:dependencies", python-version: "3.12" }
-        - { script: "typing:check",      python-version: "3.12" }
+        - { script: "test:dependencies", python-version: "3.x" }
+        - { script: "typing:check",      python-version: "3.x" }
 
     steps:
     - uses: actions/checkout@v4
     - uses: actions/setup-python@v5
+      id: setup-python
       with:
         python-version: ${{ matrix.python-version }}
         allow-prereleases: true
@@ -72,7 +73,7 @@ jobs:
 
     - name: Run tests
       env:
-        HATCH_PYTHON: ${{ matrix.python-version }}
+        HATCH_PYTHON: ${{ steps.setup-python.outputs.python-path }}
         HATCH_VERBOSE: "1"
         TAP_NASA_API_KEY: ${{ secrets.TAP_NASA_API_KEY }}
       run: |
