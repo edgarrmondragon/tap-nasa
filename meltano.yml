@@ -10,7 +10,7 @@ plugins:
     label: NASA
     namespace: nasa
     description: NASA Open APIs
-    repository: https://github.com/edgarrmondragon/tap-nasa
+    repo: https://github.com/edgarrmondragon/tap-nasa
     docs: https://github.com/edgarrmondragon/tap-nasa#readme
     pip_url: -e .
     capabilities:
