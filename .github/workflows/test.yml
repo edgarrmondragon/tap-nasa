@@ -27,7 +27,7 @@ on:
 env:
   FORCE_COLOR: "1"
   # renovate: datasource=pypi depName=tox
-  TOX_VERSION: 4.25.0
+  TOX_VERSION: 4.26.0
   # renovate: datasource=pypi depName=tox-uv
   TOX_UV_VERSION: 1.25.0
   # renovate: datasource=pypi depName=uv
@@ -40,6 +40,7 @@ jobs:
       fail-fast: false
       matrix:
         python-version:
+        - "3.14"
         - "3.13"
         - "3.12"
         - "3.11"
