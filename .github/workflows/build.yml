@@ -31,7 +31,7 @@ jobs:
       with:
         name: Packages
         path: dist
-    - uses: svenstaro/upload-release-action@ebd922b779f285dafcac6410a0710daee9c12b82 # 2.10.0
+    - uses: svenstaro/upload-release-action@5e35e583720436a2cc5f9682b6f55657101c1ea1 # 2.11.1
       with:
         file: dist/*.whl
         tag: ${{ github.ref }}
