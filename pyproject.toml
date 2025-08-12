@@ -34,7 +34,7 @@ dynamic = [
   "version",
 ]
 dependencies = [
-  "singer-sdk~=0.47.0",
+  "singer-sdk~=0.48.0",
 ]
 urls.Documentation = "https://github.com/edgarrmondragon/tap-nasa#readme"
 urls.Homepage = "https://github.com/edgarrmondragon/tap-nasa"
